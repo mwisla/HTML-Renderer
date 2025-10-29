@@ -10,6 +10,11 @@
 // - Sun Tsu,
 // "The Art of War"
 
+using Microsoft.Win32;
+
+using PdfSharp;
+using PdfSharp.Pdf;
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -17,6 +22,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using TheArtOfDev.HtmlRenderer.Demo.Common;
+using TheArtOfDev.HtmlRenderer.PdfSharp;
 using TheArtOfDev.HtmlRenderer.WPF;
 
 namespace TheArtOfDev.HtmlRenderer.Demo.WPF
@@ -136,6 +142,28 @@ namespace TheArtOfDev.HtmlRenderer.Demo.WPF
         private static void ApplicationDoEvents()
         {
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action<bool>(delegate { }), false);
+        }
+
+        private void OnGeneratePdf_Click(object sender, RoutedEventArgs e)
+        {
+            var saveFile = new SaveFileDialog
+            { 
+                DefaultExt = ".pdf",
+                FileName = "document.pdf",
+            };
+            if (saveFile.ShowDialog() == true)
+            {
+                var config = new PdfGenerateConfig
+                {
+                    PageSize = PageSize.A4
+                };
+                config.SetMargins(20);
+                using (var ms = File.OpenWrite(saveFile.FileName))
+                {
+                    PdfDocument pdf = PdfGenerator.GeneratePdf(_mainControl.GetHtml(), config);
+                    pdf.Save(ms);
+                }
+            }
         }
     }
 }
